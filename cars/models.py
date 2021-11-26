@@ -12,6 +12,7 @@ class Car(models.Model):
 
 
 class Trim(models.Model):
+    id   = models.CharField(primary_key=True, max_length=16)
     user = models.ForeignKey("users.User", on_delete=models.CASCADE)
     car  = models.ForeignKey(Car, on_delete=models.CASCADE)
 
