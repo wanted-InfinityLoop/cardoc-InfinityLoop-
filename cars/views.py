@@ -11,6 +11,41 @@ from cars.models     import Trim, Tire, Car
 
 
 class TireInfoView(View):
+    @login_decorator
+    def get(self, request):
+        try:
+            user = User.objects.get(id=request.user.id)
+
+            trim = Trim.objects.get(user__id=user.id)
+
+            tires = Tire.objects.filter(trim__id=trim.id)
+
+            data = []
+
+            for tire in tires:
+                if tire.name[-1] == "전":
+                    front_tire = {
+                        "name"         : tire.name,
+                        "width"        : tire.width,
+                        "aspect_ratio" : tire.aspect_ratio,
+                        "wheel_size"   : tire.wheel_size
+                    }
+                    data.append(front_tire)
+
+                if tire.name[-1] == "후":
+                    rear_tire = {
+                        "name"         : tire.name,
+                        "width"        : tire.width,
+                        "aspect_ratio" : tire.aspect_ratio,
+                        "wheel_size"   : tire.wheel_size
+                    }
+                    data.append(rear_tire)
+
+            return JsonResponse({"tire_info" : data}, status=200)
+
+        except Trim.DoesNotExist:
+            return JsonResponse({"message": "TRIM_DOES_NOT_EXIST"}, status=400)
+
     def post(self, request):
         try:
             datas = json.loads(request.body)
@@ -49,7 +84,7 @@ class TireInfoView(View):
 
                 rear_splited_value = rear_tire_value.split("/")
 
-                Tire.objects.create(
+                Tire.objects.get_or_create(
                     name        =front_tire.get("name"),
                     width       =front_splited_value[0],
                     aspect_ratio=front_splited_value[1].split("R")[0],
@@ -57,7 +92,7 @@ class TireInfoView(View):
                     trim        =trim
                 )
 
-                Tire.objects.create(
+                Tire.objects.get_or_create(
                     name        =rear_tire.get("name"),
                     width       =rear_splited_value[0],
                     aspect_ratio=rear_splited_value[1].split("R")[0],
@@ -72,4 +107,3 @@ class TireInfoView(View):
 
         except KeyError:
             return JsonResponse({"message": "KEY_ERROR"}, status=400)
-

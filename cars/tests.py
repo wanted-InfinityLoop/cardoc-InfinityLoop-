@@ -1,8 +1,11 @@
 import json
+import jwt
 
 from django.test import TestCase, Client
 
 from users.models import User
+from cars.models  import Car, Trim, Tire
+from my_settings  import MY_SECRET_KEY, ALGORITHM
 
 
 class TireInfoView(TestCase):
@@ -19,9 +22,62 @@ class TireInfoView(TestCase):
                 User(id="test6", password="abcABC6#"),
             ]
         )
+        User.objects.create(id="test8", password="abcABC8#")
+        
+        User.objects.create(id="test9", password="abcABC9#")
+
+        self.access_token8 = jwt.encode({"id" : "test8"}, MY_SECRET_KEY, ALGORITHM)
+        
+        self.access_token9 = jwt.encode({"id" : "test9"}, MY_SECRET_KEY, ALGORITHM)
+
+        Car.objects.create(id=1, brand="KIA", model="오피러스", submodel="오피러스", year=2004)
+
+        Trim.objects.create(id=1, user_id="test8", car_id=1)
+
+        Tire.objects.create(name="타이어 전", width=205, aspect_ratio=75, wheel_size=18, trim_id=1)
+        
+        Tire.objects.create(name="타이어 후", width=205, aspect_ratio=75, wheel_size=18, trim_id=1)
 
     def tearDown(self):
+        Tire.objects.all().delete()
+        Trim.objects.all().delete()
+        Car.objects.all().delete()
         User.objects.all().delete()
+
+    def test_get_tire_info_success(self):
+        header = {"HTTP_Authorization": f"Bearer {self.access_token8}"}
+
+        response = self.client.get(
+            "/cars/tire-info", content_type="application/json", **header
+        )
+
+        data = [
+            {
+                "name": "타이어 전",
+                "width": 205,
+                "aspect_ratio": 75,
+                "wheel_size": 18
+            },
+            {
+                "name": "타이어 후",
+                "width": 205,
+                "aspect_ratio": 75,
+                "wheel_size": 18
+            }
+        ]
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"tire_info": data})
+
+    def test_get_tire_info_trim_does_not_exist(self):
+        header = {"HTTP_Authorization": f"Bearer {self.access_token9}"}
+
+        response = self.client.get(
+            "/cars/tire-info", content_type="application/json", **header
+        )
+
+        self.assertEqual(response.json(), {"message": "TRIM_DOES_NOT_EXIST"})
+        self.assertEqual(response.status_code, 400)
 
     def test_post_tire_info_success(self):
         data = [
