@@ -77,7 +77,7 @@ class TireInfoView(TestCase):
         )
 
         self.assertEqual(response.json(), {"message": "TRIM_DOES_NOT_EXIST"})
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 500)
 
     def test_post_tire_info_success(self):
         data = [
@@ -173,7 +173,7 @@ class TireInfoView(TestCase):
             "/cars/tire-info", json.dumps(data), content_type="application/json"
         )
 
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 500)
         self.assertEqual(response.json(), {"message": "USER_DOES_NOT_EXIST"})
 
     def test_post_tire_info_key_error(self):

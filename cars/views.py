@@ -44,7 +44,7 @@ class TireInfoView(View):
             return JsonResponse({"tire_info" : data}, status=200)
 
         except Trim.DoesNotExist:
-            return JsonResponse({"message": "TRIM_DOES_NOT_EXIST"}, status=400)
+            return JsonResponse({"message": "TRIM_DOES_NOT_EXIST"}, status=500)
 
     def post(self, request):
         try:
@@ -78,7 +78,7 @@ class TireInfoView(View):
                 rear_tire_value = rear_tire.get("value")
 
                 if not tire_validator(front_tire_value or rear_tire_value):
-                    return JsonResponse({"message": "INVALID FORMAT"}, status=400)
+                    return JsonResponse({"message": "INVALID FORMAT"}, status=500)
 
                 front_splited_value = front_tire_value.split("/")
 
@@ -103,7 +103,7 @@ class TireInfoView(View):
             return JsonResponse({"message": "SUCCESS"}, status=200)
 
         except User.DoesNotExist:
-            return JsonResponse({"message": "USER_DOES_NOT_EXIST"}, status=400)
+            return JsonResponse({"message": "USER_DOES_NOT_EXIST"}, status=500)
 
         except KeyError:
             return JsonResponse({"message": "KEY_ERROR"}, status=400)

@@ -44,7 +44,7 @@ class SignupViewTest(TestCase):
             "/users/signup", json.dumps(data), content_type="application/json"
         )
 
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 500)
         self.assertEqual(response.json(), {"message": "REGISTERED_USER"})
 
     def test_post_signup_invalid_password_format(self):
@@ -57,7 +57,7 @@ class SignupViewTest(TestCase):
             "/users/signup", json.dumps(data), content_type="application/json"
         )
 
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 500)
         self.assertEqual(response.json(), {"message": "INVALID_FORMAT"})
 
     def test_post_signup_key_error(self):
@@ -114,7 +114,7 @@ class LoginViewTest(TestCase):
             "/users/login", json.dumps(data), content_type="application/json"
         )
 
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 500)
         self.assertEqual(response.json(), {"message": "USER_DOES_NOT_EXIST"})
     
     def test_post_login_failed(self):
@@ -127,7 +127,7 @@ class LoginViewTest(TestCase):
             "/users/login", json.dumps(data), content_type="application/json"
         )
 
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 500)
         self.assertEqual(response.json(), {"message": "LOGIN_FAILED"})
 
     def test_post_key_error(self):

@@ -19,10 +19,10 @@ class SignupView(View):
             raw_password = data['password']
 
             if User.objects.filter(id=user_id).exists():
-                return JsonResponse({"message": "REGISTERED_USER"}, status=400)
+                return JsonResponse({"message": "REGISTERED_USER"}, status=500)
 
             if not password_validator(raw_password):
-                return JsonResponse({"message": "INVALID_FORMAT"}, status=400)
+                return JsonResponse({"message": "INVALID_FORMAT"}, status=500)
 
             salted_password = bcrypt.hashpw(raw_password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
@@ -42,7 +42,7 @@ class LoginView(View):
             user = User.objects.get(id=data['id'])
 
             if not bcrypt.checkpw(data['password'].encode("utf-8"), user.password.encode("utf-8")):
-                return JsonResponse({"message": "LOGIN_FAILED"}, status=400)
+                return JsonResponse({"message": "LOGIN_FAILED"}, status=500)
 
             access_token = jwt.encode({
                 "id" : user.id,
@@ -52,7 +52,7 @@ class LoginView(View):
             return JsonResponse({"message": "SUCCESS", "token": access_token}, status=200)
 
         except User.DoesNotExist:
-            return JsonResponse({"message": "USER_DOES_NOT_EXIST"}, status=400)
+            return JsonResponse({"message": "USER_DOES_NOT_EXIST"}, status=500)
 
         except KeyError:
             return JsonResponse({"message": "KEY_ERROR"}, status=400)
