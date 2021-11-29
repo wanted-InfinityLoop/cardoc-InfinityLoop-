@@ -51,7 +51,7 @@
 
 # ➡️ Build(AWS EC2)
 
-API URL : http://{}
+API URL : http://3.36.70.195:8000
 
 <br>
 <br>
@@ -133,7 +133,7 @@ API URL : http://{}
 - Method: POST
 
 ```
-http://3.36.70.195/users/signup
+http://3.36.70.195:8000/users/signup
 ```
 
 <br>
@@ -167,7 +167,7 @@ http://3.36.70.195/users/signup
 - Method: POST
 
 ```
-http://3.36.70.195/users/login
+http://3.36.70.195:8000/users/login
 ```
 
 <br>
@@ -209,7 +209,7 @@ http://3.36.70.195/users/login
 - Method: POST
 
 ```
-http://3.36.70.195/cars/tire-info
+http://3.36.70.195:8000/cars/tire-info
 ```
 
 <br>
@@ -263,7 +263,7 @@ http://3.36.70.195/cars/tire-info
 - Method: GET
 
 ```
-http://3.36.70.195/cars/tire-info
+http://3.36.70.195:8000/cars/tire-info
 ```
 
 <br>
