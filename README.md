@@ -133,7 +133,7 @@ API URL : http://{}
 - Method: POST
 
 ```
-http://{}/users/signup
+http://3.36.70.195/users/signup
 ```
 
 <br>
@@ -167,7 +167,7 @@ http://{}/users/signup
 - Method: POST
 
 ```
-http://{}/users/login
+http://3.36.70.195/users/login
 ```
 
 <br>
@@ -209,7 +209,7 @@ http://{}/users/login
 - Method: POST
 
 ```
-http://{}/cars/tire-info
+http://3.36.70.195/cars/tire-info
 ```
 
 <br>
@@ -263,7 +263,7 @@ http://{}/cars/tire-info
 - Method: GET
 
 ```
-http://{}/cars/tire-info
+http://3.36.70.195/cars/tire-info
 ```
 
 <br>
@@ -308,7 +308,7 @@ https://github.com/wanted-InfinityLoop/cardoc-InfinityLoop-jy.git
 
 ```
 conda create -n cardoc python=3.9
-conda actvate cardoc
+conda activate cardoc
 ```
 
 3. 가상환경 생성 후, requirements.txt를 설치한다.

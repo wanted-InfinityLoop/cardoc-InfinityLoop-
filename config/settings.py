@@ -8,7 +8,7 @@ SECRET_KEY = MY_SECRET_KEY
 
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["3.36.70.195", "3.36.70.195:8000"]
 
 INSTALLED_APPS = [
     'django.contrib.contenttypes',
