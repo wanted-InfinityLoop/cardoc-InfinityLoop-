@@ -15,7 +15,8 @@ class SignupViewTest(TestCase):
 
         User.objects.create(
             id      ="테스트유저1",
-            password="asdfA3df@sdf"
+            password=bcrypt.hashpw("asdfA3df@sdf".encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+            
         )
 
     def tearDown(self):
@@ -85,7 +86,6 @@ class LoginViewTest(TestCase):
 
         self.access_token = jwt.encode({
             "id"  : user.id,
-            "exp" : datetime.now() + timedelta(hours=6) 
             }, MY_SECRET_KEY, ALGORITHM)
 
     def tearDown(self):

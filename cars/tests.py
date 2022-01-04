@@ -1,7 +1,9 @@
 import json
 import jwt
+import bcrypt
 
 from django.test import TestCase, Client
+from unittest.mock import patch, MagicMock
 
 from users.models import User
 from cars.models  import Car, Trim, Tire
@@ -14,17 +16,17 @@ class TireInfoView(TestCase):
 
         User.objects.bulk_create(
             [
-                User(id="test1", password="abcABC1#"),
-                User(id="test2", password="abcABC2#"),
-                User(id="test3", password="abcABC3#"),
-                User(id="test4", password="abcABC4#"),
-                User(id="test5", password="abcABC5#"),
-                User(id="test6", password="abcABC6#"),
+                User(id="test1", password=bcrypt.hashpw("abcABC1#".encode("utf-8"), bcrypt.gensalt()).decode("utf-8")),
+                User(id="test2", password=bcrypt.hashpw("abcABC2#".encode("utf-8"), bcrypt.gensalt()).decode("utf-8")),
+                User(id="test3", password=bcrypt.hashpw("abcABC3#".encode("utf-8"), bcrypt.gensalt()).decode("utf-8")),
+                User(id="test4", password=bcrypt.hashpw("abcABC4#".encode("utf-8"), bcrypt.gensalt()).decode("utf-8")),
+                User(id="test5", password=bcrypt.hashpw("abcABC5#".encode("utf-8"), bcrypt.gensalt()).decode("utf-8")),
+                User(id="test6", password=bcrypt.hashpw("abcABC6#".encode("utf-8"), bcrypt.gensalt()).decode("utf-8")),
             ]
         )
-        User.objects.create(id="test8", password="abcABC8#")
+        User.objects.create(id="test8", password=bcrypt.hashpw("abcABC8#".encode("utf-8"), bcrypt.gensalt()).decode("utf-8"))
         
-        User.objects.create(id="test9", password="abcABC9#")
+        User.objects.create(id="test9", password=bcrypt.hashpw("abcABC9#".encode("utf-8"), bcrypt.gensalt()).decode("utf-8"))
 
         self.access_token8 = jwt.encode({"id" : "test8"}, MY_SECRET_KEY, ALGORITHM)
         
@@ -79,95 +81,98 @@ class TireInfoView(TestCase):
         self.assertEqual(response.json(), {"message": "TRIM_DOES_NOT_EXIST"})
         self.assertEqual(response.status_code, 500)
 
-    def test_post_tire_info_success(self):
-        data = [
-            {
-                "id" : "test1",
-                "trimId" : 5000
-            },
-            {
-                "id" : "test2",
-                "trimId" : 9000
-            },
-            {
-                "id" : "test3",
-                "trimId" : 11000
-            },
-            {
-                "id" : "test4",
-                "trimId" : 15000
-            },
-            {
-                "id" : "test5",
-                "trimId" : 16000
-            },
-        ]
+    @patch("cars.views.requests")
+    def test_post_tire_info_success(self, mock_request):
+        class TireInfoMockResponse:
+            def json(self):
+                return {
+                    "brandName": "기아",
+                    "modelName": "오피러스",
+                    "submodelGroupName": "오피러스",
+                    "yearType": "2004",
+                    "spec" : {
+                        "driving": {
+                            "frontTire" : {
+                                "name": "타이어 전",
+                                "value": "225/60R16",
+                            },
+                            "rearTire" : {
+                                "name": "타이어 후",
+                                "value": "225/60R16",
+                            },
+                        }
+                    }
+                }
+
+        data = [{"id" : "test1", "trimId" : 5000}]
+
+        mock_request.get = MagicMock(return_value=TireInfoMockResponse())
 
         response = self.client.post(
             "/cars/tire-info", json.dumps(data), content_type="application/json"
         )
-
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"message": "SUCCESS"})
 
-    def test_post_tire_info_invalid_data_length(self):
-        data = [
-            {
-                "id" : "test1",
-                "trimId" : 5000
-            },
-            {
-                "ids" : "test2",
-                "trimId" : 9000
-            },
-            {
-                "id" : "test3",
-                "trimId" : 11000
-            },
-            {
-                "id" : "test4",
-                "trimId" : 15000
-            },
-            {
-                "id" : "test5",
-                "trimId" : 16000
-            },
-            {
-                "id" : "test6",
-                "trimId" : 17000
-            },
-        ]
+    @patch("cars.views.requests")
+    def test_post_tire_invalid_format(self, mock_request):
+        class TireInfoMockResponse:
+            def json(self):
+                return {
+                    "brandName": "기아",
+                    "modelName": "오피러스",
+                    "submodelGroupName": "오피러스",
+                    "yearType": "2004",
+                    "spec" : {
+                        "driving": {
+                            "frontTire" : {
+                                "name": "타이어 전",
+                                "value": "22560R16",
+                            },
+                            "rearTire" : {
+                                "name": "타이어 후",
+                                "value": "22560R16",
+                            },
+                        }
+                    }
+                }
+
+        data = [{"id" : "test1", "trimId" : 5000}]
+
+        mock_request.get = MagicMock(return_value=TireInfoMockResponse())
 
         response = self.client.post(
             "/cars/tire-info", json.dumps(data), content_type="application/json"
         )
+        self.assertEqual(response.status_code, 500)
+        self.assertEqual(response.json(), {"message": "INVALID FORMAT"})
 
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.json(), {"message": "INVALID_DATA_LENGTH"})
+    @patch("cars.views.requests")
+    def test_post_tire_info_user_does_not_exist(self, mock_request):
+        class TireInfoMockResponse:
+            def json(self):
+                return {
+                    "brandName": "기아",
+                    "modelName": "오피러스",
+                    "submodelGroupName": "오피러스",
+                    "yearType": "2004",
+                    "spec" : {
+                        "driving": {
+                            "frontTire" : {
+                                "name": "타이어 전",
+                                "value": "225/60R16",
+                            },
+                            "rearTire" : {
+                                "name": "타이어 후",
+                                "value": "225/60R16",
+                            },
+                        }
+                    }
+                }
 
-    def test_post_tire_info_user_does_not_exist(self):
-        data = [
-            {
-                "id" : "test1",
-                "trimId" : 5000
-            },
-            {
-                "id" : "test2",
-                "trimId" : 9000
-            },
-            {
-                "id" : "test3",
-                "trimId" : 11000
-            },
-            {
-                "id" : "test4",
-                "trimId" : 15000
-            },
-            {
-                "id" : "test7",
-                "trimId" : 16000
-            },
-        ]
+        data = [{"id" : "test7", "trimId" : 5000}]
+
+        mock_request.get = MagicMock(return_value=TireInfoMockResponse())
 
         response = self.client.post(
             "/cars/tire-info", json.dumps(data), content_type="application/json"
@@ -176,29 +181,32 @@ class TireInfoView(TestCase):
         self.assertEqual(response.status_code, 500)
         self.assertEqual(response.json(), {"message": "USER_DOES_NOT_EXIST"})
 
-    def test_post_tire_info_key_error(self):
-        data = [
-            {
-                "id" : "test1",
-                "trimId" : 5000
-            },
-            {
-                "ids" : "test2",
-                "trimId" : 9000
-            },
-            {
-                "id" : "test3",
-                "trimId" : 11000
-            },
-            {
-                "id" : "test4",
-                "trimId" : 15000
-            },
-            {
-                "id" : "test7",
-                "trimId" : 16000
-            },
-        ]
+    @patch("cars.views.requests")
+    def test_post_tire_info_key_error(self, mock_request):
+        class TireInfoMockResponse:
+            def json(self):
+                return {
+                    "brandName": "기아",
+                    "modelName": "오피러스",
+                    "submodelGroupName": "오피러스",
+                    "yearType": "2004",
+                    "spec" : {
+                        "driving": {
+                            "frontTire" : {
+                                "name": "타이어 전",
+                                "value": "225/60R16",
+                            },
+                            "rearTire" : {
+                                "name": "타이어 후",
+                                "value": "225/60R16",
+                            },
+                        }
+                    }
+                }
+
+        data = [{"id" : "test1", "trim_Id" : 5000}]
+
+        mock_request.get = MagicMock(return_value=TireInfoMockResponse())
 
         response = self.client.post(
             "/cars/tire-info", json.dumps(data), content_type="application/json"
@@ -206,4 +214,3 @@ class TireInfoView(TestCase):
 
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json(), {"message": "KEY_ERROR"})
-

@@ -8,7 +8,7 @@ SECRET_KEY = MY_SECRET_KEY
 
 DEBUG = True
 
-ALLOWED_HOSTS = ["3.36.70.195", "3.36.70.195:8000"]
+ALLOWED_HOSTS = ["3.36.70.195", "3.36.70.195:8000", "127.0.0.1"]
 
 INSTALLED_APPS = [
     'django.contrib.contenttypes',
@@ -18,7 +18,9 @@ INSTALLED_APPS = [
     'corsheaders',
     'core',
     'users',
-    'cars'
+    'cars',
+    'django_crontab',
+    'django_extensions'
 ]
 
 MIDDLEWARE = [
@@ -111,3 +113,9 @@ CORS_ALLOW_HEADERS = (
     "x-csrftoken",
     "x-requested-with",
 )
+
+# CRONTAB_COMMAND_SUFFIX = "2>&1"
+
+# CRONJOBS = [
+#     ('* * * * *', 'core.cron.my_scheduled_job', '>> /tmp/scheduled_job.log'),
+# ]
