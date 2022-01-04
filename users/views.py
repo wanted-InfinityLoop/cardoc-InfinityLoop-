@@ -46,7 +46,6 @@ class LoginView(View):
 
             access_token = jwt.encode({
                 "id" : user.id,
-                "exp" : datetime.now() + timedelta(hours=6) 
             }, MY_SECRET_KEY, ALGORITHM)
 
             return JsonResponse({"message": "SUCCESS", "token": access_token}, status=200)

@@ -358,3 +358,4 @@ zsdoc/data
 
 my_settings.py
 nohup.out
+core/cron.py
